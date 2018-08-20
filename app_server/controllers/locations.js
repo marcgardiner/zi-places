@@ -8,6 +8,16 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 var renderHomepage = function(req, res, responseBody) {
+    var message;
+    if (!(responseBody instanceof Array)){
+        message = "API lookup error";
+        responseBody = [];
+    } else {
+        if (!responseBody.length) {
+            message = "No places found nearby";
+        }
+    }
+
     res.render('locations-list', {
         title: "find a place to work with wifi",
         pageHeader: {
@@ -15,11 +25,24 @@ var renderHomepage = function(req, res, responseBody) {
             strapline: 'Find places to work with wifi near you'
         },
         sidebar: "Looking for wifi and a seat?",
-        locations: responseBody
+        locations: responseBody,
+        message: message
     });
 };
 
-module.exports.homeList = function(req, res) {
+var _formatDistance = function (distance) {
+    var numDistance, unit;
+    if (distance > 1) {
+        numDistance = parseFloat(distance).toFixed(1);
+        unit = 'km';
+    } else {
+        numDistance = parseInt(distance * 1000, 10);
+        unit = 'm';
+    }
+    return numDistance + unit;
+};
+
+module.exports.homeList = function (req, res) {
     var requestOptions, path;
     path = '/api/locations';
     requestOptions = {
@@ -34,6 +57,13 @@ module.exports.homeList = function(req, res) {
     };
     request(requestOptions,
         function(err, response, body) {
+            var i, data;
+            data = body;
+            if (response.statusCode === 200 && data.length) {
+                for (i=0; i<data.length; i++) {
+                    data[i].distance = _formatDistance(data[i].distance);
+                }
+            }
             renderHomepage(req, res, body);
         }
     );
