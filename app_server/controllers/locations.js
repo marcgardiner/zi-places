@@ -42,6 +42,22 @@ var _formatDistance = function (distance) {
     return numDistance + unit;
 };
 
+var _showError = function (req, res, status) {
+    var title, content;
+    if (status === 404) {
+        title = "404, page not found";
+        content = "Oh dear. Looks like we can't find this page. Sorry.";
+    } else {
+        title = status + ", something's gone wrong";
+        content = "Something, somewhere, has gone just a little bit wrong.";
+    }
+    res.status(status);
+    res.render('generic-text', {
+        title: title,
+        content: content
+    });
+};
+
 module.exports.homeList = function (req, res) {
     var requestOptions, path;
     path = '/api/locations';
