@@ -16,7 +16,8 @@ var locationListCtrl = function ($scope) {
 angular
 .module('ziplacesApp')
 .controller('locationListCtrl', locationListCtrl)
-.filter('formatDistance', formatDistance);
+.filter('formatDistance', formatDistance)
+.directive('ratingStars', ratingStars);
 
 var _isNumeric = function (n) {
     return !isNan(parseFloat(n)) && isFinite(n);
@@ -37,5 +38,14 @@ var formatDistance = function () {
         } else {
             return "?";
         }
+    };
+};
+
+var ratingStars = function () {
+    return {
+        scope: {
+            thisRating: '=rating'
+        },
+        templateUrl: '/angular/rating-stars.html'
     };
 };
