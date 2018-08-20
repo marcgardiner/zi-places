@@ -1,23 +1,23 @@
 angular.module('ziplacesApp', []);
 
-var locationListCtrl = function ($scope) {
-    $scope.data = {
-        locations: [{
-            name: 'Burger Queen',
-            address: '125 High Street, Reading, RG6 1PS',
-            rating: 3,
-            facilities: ['Hot drinks', 'Food', 'Premium wifi'],
-            distance: '0.296456',
-            _id: '537'
-        }]
-    };
+var locationListCtrl = function ($scope, ziplacesData) {
+    $scope.message = "Searching for nearby places";
+    ziplacesData
+    .success(function (data) {
+        $scope.message = data.length > 0 ? "" : "No locations found";
+        $scope.data = {locations: data};
+    })
+    .error(function (e) {
+        $scope.message = "sorry, something's gone wrong";
+    });
 };
 
 angular
 .module('ziplacesApp')
 .controller('locationListCtrl', locationListCtrl)
 .filter('formatDistance', formatDistance)
-.directive('ratingStars', ratingStars);
+.directive('ratingStars', ratingStars)
+.service('ziplacesData', ziplacesData);
 
 var _isNumeric = function (n) {
     return !isNan(parseFloat(n)) && isFinite(n);
@@ -48,4 +48,8 @@ var ratingStars = function () {
         },
         templateUrl: '/angular/rating-stars.html'
     };
+};
+
+var ziplacesData = function ($http) {
+    return $http.get('/api/locations?lng=-0.79&lat=51.3&maxDistance=20');
 };

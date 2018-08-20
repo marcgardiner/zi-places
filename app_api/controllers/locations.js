@@ -26,10 +26,6 @@ module.exports.locationsCreate = function (req, res) {
     sendJsonResponse(res, 200, {"status": "success"});
 };
 
-module.exports.locationsListByDistance = function (req, res) {
-    sendJsonResponse(res, 200, {"status": "success"});
-};
-
 module.exports.locationReadOne = function (req, res) {
     if (req.params && req.params.locationid) {
         loc
