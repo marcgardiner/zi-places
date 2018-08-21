@@ -1,10 +1,20 @@
 angular.module('ziplacesApp', []);
 
+angular
+.module('ziplacesApp')
+.controller('locationListCtrl', locationListCtrl)
+.filter('formatDistance', formatDistance)
+.directive('ratingStars', ratingStars)
+.service('ziplacesData', ziplacesData)
+.service('geoLocation', geoLocation);
+
 var locationListCtrl = function ($scope, ziplacesData, geoLocation) {
     $scope.message = "Checking your location";
     $scope.getData = function (position) {
+        var lat = position.coords.latitude,
+            lng = position.coords.longitude;
         $scope.message = "Searching for nearby places";
-        ziplacesData
+        ziplacesData.locationByCoords(lat, lng)
         .success(function (data) {
             $scope.message = data.length > 0 ? "" : "No locations found";
             $scope.data = {locations: data};
@@ -14,7 +24,7 @@ var locationListCtrl = function ($scope, ziplacesData, geoLocation) {
         });
     };
     $scope.showError = function (error) {
-        $scope.$aply(function () {
+        $scope.$apply(function () {
             $scope.message = error.message;
         });
     };
@@ -25,14 +35,6 @@ var locationListCtrl = function ($scope, ziplacesData, geoLocation) {
     };
     geolocation.getPosition($scope.getData, $scope.showError, $scope.noGeo);
 };
-
-angular
-.module('ziplacesApp')
-.controller('locationListCtrl', locationListCtrl)
-.filter('formatDistance', formatDistance)
-.directive('ratingStars', ratingStars)
-.service('ziplacesData', ziplacesData)
-.service('geoLocation', geoLocation);
 
 var _isNumeric = function (n) {
     return !isNan(parseFloat(n)) && isFinite(n);
@@ -66,7 +68,12 @@ var ratingStars = function () {
 };
 
 var ziplacesData = function ($http) {
-    return $http.get('/api/locations?lng=-0.79&lat=51.3&maxDistance=20');
+    var locationByCoords = function (lat, lng) {
+        return $http.get('/api/locations?lng='+lng+'&lat='+lat+'&maxDistance=20');
+    };
+    return {
+        locationByCoords: locationByCoords
+    };
 };
 
 var geoLocation = function () {
